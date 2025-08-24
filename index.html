@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск людей по фото</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-search"></i> Поиск людей по фото</h1>
+            <p>Загрузите фотографию и найдите похожих людей в социальных сетях</p>
+        </header>
+
+        <main class="main-content">
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Загрузите фотографию</h3>
+                        <p>Перетащите файл сюда или нажмите для выбора</p>
+                        <input type="file" id="photoInput" accept="image/*" hidden>
+                        <button class="upload-btn" onclick="document.getElementById('photoInput').click()">
+                            Выбрать файл
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <div class="file-preview">
+                        <img id="imagePreview" src="" alt="Предварительный просмотр">
+                    </div>
+                    <div class="file-details">
+                        <h4 id="fileName"></h4>
+                        <p id="fileSize"></p>
+                        <button class="search-btn" id="searchBtn">
+                            <i class="fas fa-search"></i> Начать поиск
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>Результаты поиска</h2>
+                <div class="search-status" id="searchStatus">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Анализируем фотографию...</span>
+                    </div>
+                </div>
+                
+                <div class="results-grid" id="resultsGrid" style="display: none;">
+                    <!-- Результаты будут добавлены динамически -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Поиск людей по фото. Все права защищены.</p>
+        </footer>
+    </div>
+
+    <!-- Модальное окно для детального просмотра -->
+    <div class="modal" id="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div class="modal-body">
+                <div class="profile-details">
+                    <img id="modalAvatar" src="" alt="Аватар">
+                    <h3 id="modalName"></h3>
+                    <p id="modalNetwork"></p>
+                    <p id="modalSimilarity"></p>
+                    <a id="modalProfileLink" href="" target="_blank" class="profile-link">
+                        <i class="fas fa-external-link-alt"></i> Открыть профиль
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

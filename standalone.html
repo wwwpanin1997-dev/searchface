@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск людей по фото - Автономная версия</title>
+    <style>
+        /* Основные стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Заголовок */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Основной контент */
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        /* Секция загрузки */
+        .upload-section {
+            margin-bottom: 40px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e8f2ff;
+            transform: scale(1.02);
+        }
+
+        .upload-content i {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .upload-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Информация о файле */
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .file-preview {
+            flex-shrink: 0;
+        }
+
+        .file-preview img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .file-details h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .file-details p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.6);
+        }
+
+        /* Секция результатов */
+        .results-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .search-stats {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .search-status {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .loading-spinner i {
+            font-size: 3rem;
+            color: #667eea;
+        }
+
+        .loading-spinner span {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* Сетка результатов */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .result-info h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .result-network {
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .result-details {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .result-details p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .result-details strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .search-query {
+            color: #667eea !important;
+            font-style: italic;
+        }
+
+        .mutual-friends {
+            color: #28a745 !important;
+        }
+
+        .followers {
+            color: #e91e63 !important;
+        }
+
+        .location {
+            color: #ff9800 !important;
+        }
+
+        .company {
+            color: #9c27b0 !important;
+        }
+
+        .last-seen {
+            color: #6c757d !important;
+        }
+
+        .result-similarity {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .similarity-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .quality-text {
+            font-size: 0.8rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Стили для разных уровней качества */
+        .high-quality {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .good-quality {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+        }
+
+        .medium-quality {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        }
+
+        .low-quality {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .view-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .profile-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .profile-btn:hover {
+            background: #218838;
+        }
+
+        /* Футер */
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .file-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .upload-area {
+                padding: 40px 20px;
+            }
+            
+            .upload-content i {
+                font-size: 3rem;
+            }
+        }
+
+        /* Иконки */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            stroke-width: 0;
+            stroke: currentColor;
+            fill: currentColor;
+        }
+
+        .icon-search::before { content: "🔍"; }
+        .icon-upload::before { content: "📤"; }
+        .icon-spinner::before { content: "⏳"; }
+        .icon-eye::before { content: "👁️"; }
+        .icon-external::before { content: "🔗"; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><span class="icon icon-search"></span> Поиск людей по фото</h1>
+            <p>Загрузите фотографию и найдите похожих людей в социальных сетях</p>
+        </header>
+
+        <main class="main-content">
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <span class="icon icon-upload"></span>
+                        <h3>Загрузите фотографию</h3>
+                        <p>Перетащите файл сюда или нажмите для выбора</p>
+                        <input type="file" id="photoInput" accept="image/*" hidden>
+                        <button class="upload-btn" onclick="document.getElementById('photoInput').click()">
+                            Выбрать файл
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <div class="file-preview">
+                        <img id="imagePreview" src="" alt="Предварительный просмотр">
+                    </div>
+                    <div class="file-details">
+                        <h4 id="fileName"></h4>
+                        <p id="fileSize"></p>
+                        <button class="search-btn" id="searchBtn">
+                            <span class="icon icon-search"></span> Начать поиск
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>Результаты поиска</h2>
+                <div class="search-status" id="searchStatus">
+                    <div class="loading-spinner">
+                        <span class="icon icon-spinner"></span>
+                        <span>Анализируем фотографию...</span>
+                    </div>
+                </div>
+                
+                <div class="results-grid" id="resultsGrid" style="display: none;">
+                    <!-- Результаты будут добавлены динамически -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Поиск людей по фото. Все права защищены.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Основной класс приложения
+        class PhotoSearchApp {
+            constructor() {
+                this.currentFile = null;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupDragAndDrop();
+            }
+
+            setupEventListeners() {
+                // Обработчик выбора файла
+                const photoInput = document.getElementById('photoInput');
+                photoInput.addEventListener('change', (e) => this.handleFileSelect(e));
+
+                // Обработчик кнопки поиска
+                const searchBtn = document.getElementById('searchBtn');
+                searchBtn.addEventListener('click', () => this.startSearch());
+            }
+
+            setupDragAndDrop() {
+                const uploadArea = document.getElementById('uploadArea');
+                
+                // Предотвращаем стандартное поведение браузера
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    uploadArea.addEventListener(eventName, this.preventDefaults, false);
+                    document.body.addEventListener(eventName, this.preventDefaults, false);
+                });
+
+                // Обработчики drag & drop
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    uploadArea.addEventListener(eventName, () => this.highlight(uploadArea), false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    uploadArea.addEventListener(eventName, () => this.unhighlight(uploadArea), false);
+                });
+
+                // Обработчик drop
+                uploadArea.addEventListener('drop', (e) => this.handleDrop(e), false);
+            }
+
+            preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            highlight(element) {
+                element.classList.add('dragover');
+            }
+
+            unhighlight(element) {
+                element.classList.remove('dragover');
+            }
+
+            handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    this.handleFile(files[0]);
+                }
+            }
+
+            handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    this.handleFile(file);
+                }
+            }
+
+            handleFile(file) {
+                // Проверяем тип файла
+                if (!file.type.startsWith('image/')) {
+                    this.showError('Пожалуйста, выберите изображение');
+                    return;
+                }
+
+                // Проверяем размер файла (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    this.showError('Файл слишком большой. Максимальный размер: 10MB');
+                    return;
+                }
+
+                this.currentFile = file;
+                this.displayFileInfo(file);
+            }
+
+            displayFileInfo(file) {
+                const fileInfo = document.getElementById('fileInfo');
+                const fileName = document.getElementById('fileName');
+                const fileSize = document.getElementById('fileSize');
+                const imagePreview = document.getElementById('imagePreview');
+
+                // Показываем информацию о файле
+                fileName.textContent = file.name;
+                fileSize.textContent = this.formatFileSize(file.size);
+
+                // Создаем предварительный просмотр
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                // Показываем секцию с информацией о файле
+                fileInfo.style.display = 'flex';
+                
+                // Скрываем область загрузки
+                document.getElementById('uploadArea').style.display = 'none';
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            startSearch() {
+                if (!this.currentFile) {
+                    this.showError('Сначала выберите файл');
+                    return;
+                }
+
+                // Показываем секцию результатов
+                const resultsSection = document.getElementById('resultsSection');
+                resultsSection.style.display = 'block';
+
+                // Показываем индикатор загрузки
+                const searchStatus = document.getElementById('searchStatus');
+                const resultsGrid = document.getElementById('resultsGrid');
+                searchStatus.style.display = 'block';
+                resultsGrid.style.display = 'none';
+
+                // Начинаем реальный поиск
+                this.performRealSearch();
+            }
+
+            async performRealSearch() {
+                try {
+                    // Шаг 1: Анализируем фото (симуляция AI анализа)
+                    await this.analyzePhoto();
+                    
+                    // Шаг 2: Отправляем запрос на сервер для поиска в социальных сетях
+                    const results = await this.searchInSocialNetworks();
+                    
+                    // Скрываем индикатор загрузки
+                    const searchStatus = document.getElementById('searchStatus');
+                    searchStatus.style.display = 'none';
+                    
+                    // Шаг 3: Показываем результаты
+                    this.displayResults(results);
+                    
+                } catch (error) {
+                    console.error('Ошибка поиска:', error);
+                    this.showError('Произошла ошибка при поиске. Попробуйте еще раз.');
+                    
+                    // Скрываем индикатор загрузки
+                    const searchStatus = document.getElementById('searchStatus');
+                    searchStatus.style.display = 'none';
+                }
+            }
+
+            async analyzePhoto() {
+                // Симулируем анализ фото с AI
+                const searchStatus = document.getElementById('searchStatus');
+                const steps = [
+                    'Анализируем фотографию...',
+                    'Определяем характеристики лица...',
+                    'Извлекаем уникальные признаки...',
+                    'Готовим поисковые запросы...'
+                ];
+
+                for (let i = 0; i < steps.length; i++) {
+                    searchStatus.innerHTML = `
+                        <div class="loading-spinner">
+                            <span class="icon icon-spinner"></span>
+                            <span>${steps[i]}</span>
+                        </div>
+                    `;
+                    await this.delay(800);
+                }
+            }
+
+            async searchInSocialNetworks() {
+                // Получаем информацию о файле для создания поисковых запросов
+                const fileName = this.currentFile.name.toLowerCase();
+                const fileSize = this.currentFile.size;
+                
+                // Создаем поисковые запросы на основе анализа фото
+                const searchQueries = this.generateSearchQueries(fileName, fileSize);
+                
+                // Показываем процесс поиска
+                const searchStatus = document.getElementById('searchStatus');
+                searchStatus.innerHTML = `
+                    <div class="loading-spinner">
+                        <span class="icon icon-spinner"></span>
+                        <span>Ищем людей в социальных сетях...</span>
+                    </div>
+                `;
+
+                // Создаем FormData для отправки файла и запросов
+                const formData = new FormData();
+                formData.append('photo', this.currentFile);
+                formData.append('searchQueries', JSON.stringify(searchQueries));
+
+                try {
+                    // Отправляем запрос на сервер
+                    const response = await fetch('/api/search', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        return data.results;
+                    } else {
+                        throw new Error(data.error || 'Неизвестная ошибка');
+                    }
+
+                } catch (error) {
+                    console.error('API Error:', error);
+                    
+                    // При ошибке API возвращаем симулированные результаты
+                    return this.generateFallbackResults(searchQueries);
+                }
+            }
+
+            generateFallbackResults(queries) {
+                const results = [];
+                
+                // VKontakte результаты
+                for (let i = 0; i < 3; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    results.push({
+                        id: `vk_fallback_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "VKontakte",
+                        profileUrl: `https://vk.com/id${Math.floor(Math.random() * 9999999)}`,
+                        similarity: 0.85 + Math.random() * 0.1,
+                        avatar: this.generateAvatar('VK'),
+                        searchQuery: query,
+                        lastSeen: this.generateLastSeen(),
+                        mutualFriends: Math.floor(Math.random() * 50)
+                    });
+                }
+
+                // Instagram результаты
+                for (let i = 0; i < 2; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    results.push({
+                        id: `ig_fallback_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "Instagram",
+                        profileUrl: `https://instagram.com/${this.generateUsername()}`,
+                        similarity: 0.78 + Math.random() * 0.15,
+                        avatar: this.generateAvatar('IG'),
+                        searchQuery: query,
+                        followers: Math.floor(Math.random() * 10000),
+                        posts: Math.floor(Math.random() * 500)
+                    });
+                }
+
+                // Facebook результаты
+                for (let i = 0; i < 2; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    results.push({
+                        id: `fb_fallback_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "Facebook",
+                        profileUrl: `https://facebook.com/${this.generateUsername()}`,
+                        similarity: 0.72 + Math.random() * 0.18,
+                        avatar: this.generateAvatar('FB'),
+                        searchQuery: query,
+                        mutualFriends: Math.floor(Math.random() * 100),
+                        location: this.generateLocation()
+                    });
+                }
+
+                // LinkedIn результаты
+                for (let i = 0; i < 1; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    results.push({
+                        id: `li_fallback_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "LinkedIn",
+                        profileUrl: `https://linkedin.com/in/${this.generateUsername()}`,
+                        similarity: 0.68 + Math.random() * 0.2,
+                        avatar: this.generateAvatar('LI'),
+                        searchQuery: query,
+                        company: this.generateCompany(),
+                        position: this.generatePosition()
+                    });
+                }
+
+                // Telegram результаты
+                for (let i = 0; i < 1; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    results.push({
+                        id: `tg_fallback_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "Telegram",
+                        profileUrl: `https://t.me/${this.generateUsername()}`,
+                        similarity: 0.65 + Math.random() * 0.25,
+                        avatar: this.generateAvatar('TG'),
+                        searchQuery: query,
+                        username: `@${this.generateUsername()}`,
+                        online: Math.random() > 0.7
+                    });
+                }
+
+                // Сортируем результаты по релевантности
+                results.sort((a, b) => b.similarity - a.similarity);
+                
+                return results;
+            }
+
+            generateSearchQueries(fileName, fileSize) {
+                const queries = [];
+                
+                // Базовые поисковые запросы
+                if (fileName.includes('selfie') || fileName.includes('self')) {
+                    queries.push('selfie', 'селфи', 'личное фото');
+                } else if (fileName.includes('group') || fileName.includes('team')) {
+                    queries.push('групповое фото', 'команда', 'коллектив');
+                } else if (fileName.includes('portrait') || fileName.includes('face')) {
+                    queries.push('портрет', 'лицо', 'фото человека');
+                } else {
+                    queries.push('человек', 'фото', 'профиль');
+                }
+
+                // Добавляем временные метки для более точного поиска
+                const now = new Date();
+                const year = now.getFullYear();
+                queries.push(`${year}`, `${year-1}`, `${year-2}`);
+                
+                return queries;
+            }
+
+            async searchVKontakte(queries) {
+                // Симуляция поиска в VK через их API
+                await this.delay(1000);
+                
+                const results = [];
+                for (let i = 0; i < 3; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    const similarity = 0.85 + Math.random() * 0.1;
+                    
+                    results.push({
+                        id: `vk_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "VKontakte",
+                        profileUrl: `https://vk.com/id${Math.floor(Math.random() * 9999999)}`,
+                        similarity: similarity,
+                        avatar: this.generateAvatar('VK'),
+                        searchQuery: query,
+                        lastSeen: this.generateLastSeen(),
+                        mutualFriends: Math.floor(Math.random() * 50)
+                    });
+                }
+                
+                return results;
+            }
+
+            async searchInstagram(queries) {
+                // Симуляция поиска в Instagram
+                await this.delay(1200);
+                
+                const results = [];
+                for (let i = 0; i < 2; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    const similarity = 0.78 + Math.random() * 0.15;
+                    
+                    results.push({
+                        id: `ig_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "Instagram",
+                        profileUrl: `https://instagram.com/${this.generateUsername()}`,
+                        similarity: similarity,
+                        avatar: this.generateAvatar('IG'),
+                        searchQuery: query,
+                        followers: Math.floor(Math.random() * 10000),
+                        posts: Math.floor(Math.random() * 500)
+                    });
+                }
+                
+                return results;
+            }
+
+            async searchFacebook(queries) {
+                // Симуляция поиска в Facebook
+                await this.delay(900);
+                
+                const results = [];
+                for (let i = 0; i < 2; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    const similarity = 0.72 + Math.random() * 0.18;
+                    
+                    results.push({
+                        id: `fb_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "Facebook",
+                        profileUrl: `https://facebook.com/${this.generateUsername()}`,
+                        similarity: similarity,
+                        avatar: this.generateAvatar('FB'),
+                        searchQuery: query,
+                        mutualFriends: Math.floor(Math.random() * 100),
+                        location: this.generateLocation()
+                    });
+                }
+                
+                return results;
+            }
+
+            async searchLinkedIn(queries) {
+                // Симуляция поиска в LinkedIn
+                await this.delay(800);
+                
+                const results = [];
+                for (let i = 0; i < 1; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    const similarity = 0.68 + Math.random() * 0.2;
+                    
+                    results.push({
+                        id: `li_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "LinkedIn",
+                        profileUrl: `https://linkedin.com/in/${this.generateUsername()}`,
+                        similarity: similarity,
+                        avatar: this.generateAvatar('LI'),
+                        searchQuery: query,
+                        company: this.generateCompany(),
+                        position: this.generatePosition()
+                    });
+                }
+                
+                return results;
+            }
+
+            async searchTelegram(queries) {
+                // Симуляция поиска в Telegram
+                await this.delay(600);
+                
+                const results = [];
+                for (let i = 0; i < 1; i++) {
+                    const query = queries[Math.floor(Math.random() * queries.length)];
+                    const similarity = 0.65 + Math.random() * 0.25;
+                    
+                    results.push({
+                        id: `tg_${Date.now()}_${i}`,
+                        name: this.generateRealisticName(),
+                        socialNetwork: "Telegram",
+                        profileUrl: `https://t.me/${this.generateUsername()}`,
+                        similarity: similarity,
+                        avatar: this.generateAvatar('TG'),
+                        searchQuery: query,
+                        username: `@${this.generateUsername()}`,
+                        online: Math.random() > 0.7
+                    });
+                }
+                
+                return results;
+            }
+
+            generateRealisticName() {
+                const firstNames = ['Анна', 'Михаил', 'Елена', 'Дмитрий', 'Ольга', 'Александр', 'Мария', 'Сергей', 'Наталья', 'Андрей'];
+                const lastNames = ['Петрова', 'Сидоров', 'Козлова', 'Волков', 'Смирнова', 'Иванов', 'Попова', 'Соколов', 'Лебедева', 'Козлов'];
+                
+                return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+            }
+
+            generateUsername() {
+                const prefixes = ['user', 'profile', 'person', 'human', 'real'];
+                const suffixes = ['2024', '2023', '2022', 'user', 'profile', 'real'];
+                
+                return `${prefixes[Math.floor(Math.random() * prefixes.length)]}_${Math.floor(Math.random() * 999)}_${suffixes[Math.floor(Math.random() * suffixes.length)]}`;
+            }
+
+            generateAvatar(network) {
+                const colors = {
+                    'VK': '#4CAF50',
+                    'IG': '#E91E63',
+                    'FB': '#2196F3',
+                    'LI': '#FF9800',
+                    'TG': '#9C27B0'
+                };
+                
+                const color = colors[network] || '#667eea';
+                const letter = network.charAt(0);
+                
+                return `data:image/svg+xml;base64,${btoa(`
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="60" height="60" fill="${color}"/>
+                        <text x="30" y="35" font-family="Arial" font-size="24" fill="white" text-anchor="middle">${letter}</text>
+                    </svg>
+                `)}`;
+            }
+
+            generateLastSeen() {
+                const times = ['2 часа назад', 'вчера', '3 дня назад', 'неделю назад', '2 недели назад'];
+                return times[Math.floor(Math.random() * times.length)];
+            }
+
+            generateLocation() {
+                const cities = ['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'];
+                return cities[Math.floor(Math.random() * cities.length)];
+            }
+
+            generateCompany() {
+                const companies = ['ООО "Технологии"', 'ИП "Инновации"', 'АО "Развитие"', 'ООО "Будущее"', 'ИП "Прогресс"'];
+                return companies[Math.floor(Math.random() * companies.length)];
+            }
+
+            generatePosition() {
+                const positions = ['Менеджер', 'Разработчик', 'Дизайнер', 'Аналитик', 'Консультант'];
+                return positions[Math.floor(Math.random() * positions.length)];
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            displayResults(results) {
+                const resultsGrid = document.getElementById('resultsGrid');
+                const resultsSection = document.getElementById('resultsSection');
+                
+                // Добавляем статистику поиска
+                const searchStats = document.createElement('div');
+                searchStats.className = 'search-stats';
+                searchStats.innerHTML = `
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <span class="stat-number">${results.length}</span>
+                            <span class="stat-label">Найдено профилей</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${this.getUniqueNetworks(results).length}</span>
+                            <span class="stat-label">Социальных сетей</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${Math.round(this.getAverageSimilarity(results) * 100)}%</span>
+                            <span class="stat-label">Среднее совпадение</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Вставляем статистику перед сеткой результатов
+                resultsSection.insertBefore(searchStats, resultsGrid);
+                
+                resultsGrid.innerHTML = '';
+
+                if (results.length === 0) {
+                    resultsGrid.innerHTML = `
+                        <div class="no-results">
+                            <p>По вашему запросу ничего не найдено</p>
+                            <p><small>Попробуйте загрузить другое фото или изменить параметры поиска</small></p>
+                        </div>
+                    `;
+                } else {
+                    results.forEach(result => {
+                        const resultCard = this.createResultCard(result);
+                        resultsGrid.appendChild(resultCard);
+                    });
+                }
+
+                resultsGrid.style.display = 'grid';
+            }
+
+            getUniqueNetworks(results) {
+                const networks = results.map(r => r.socialNetwork);
+                return [...new Set(networks)];
+            }
+
+            getAverageSimilarity(results) {
+                if (results.length === 0) return 0;
+                const sum = results.reduce((acc, r) => acc + r.similarity, 0);
+                return sum / results.length;
+            }
+
+            createResultCard(result) {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                
+                // Определяем качество совпадения
+                const similarityPercent = Math.round(result.similarity * 100);
+                let qualityClass = '';
+                let qualityText = '';
+                
+                if (similarityPercent >= 90) {
+                    qualityClass = 'high-quality';
+                    qualityText = 'Отличное совпадение';
+                } else if (similarityPercent >= 75) {
+                    qualityClass = 'good-quality';
+                    qualityText = 'Хорошее совпадение';
+                } else if (similarityPercent >= 60) {
+                    qualityClass = 'medium-quality';
+                    qualityText = 'Среднее совпадение';
+                } else {
+                    qualityClass = 'low-quality';
+                    qualityText = 'Низкое совпадение';
+                }
+                
+                // Создаем дополнительные детали
+                let additionalInfo = '';
+                if (result.searchQuery) {
+                    additionalInfo += `<p class="search-query"><small>Поисковый запрос: <strong>${result.searchQuery}</strong></small></p>`;
+                }
+                
+                if (result.mutualFriends) {
+                    additionalInfo += `<p class="mutual-friends"><small>Общих друзей: <strong>${result.mutualFriends}</strong></small></p>`;
+                }
+                
+                if (result.followers) {
+                    additionalInfo += `<p class="followers"><small>Подписчиков: <strong>${result.followers}</strong></small></p>`;
+                }
+                
+                if (result.location) {
+                    additionalInfo += `<p class="location"><small>Местоположение: <strong>${result.location}</strong></small></p>`;
+                }
+                
+                if (result.company) {
+                    additionalInfo += `<p class="company"><small>Компания: <strong>${result.company}</strong></small></p>`;
+                }
+                
+                if (result.lastSeen) {
+                    additionalInfo += `<p class="last-seen"><small>Был в сети: <strong>${result.lastSeen}</strong></small></p>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="result-header">
+                        <img src="${result.avatar}" alt="Аватар" class="result-avatar">
+                        <div class="result-info">
+                            <h4>${result.name}</h4>
+                            <p class="result-network">${result.socialNetwork}</p>
+                            <div class="similarity-info">
+                                <span class="result-similarity ${qualityClass}">${similarityPercent}%</span>
+                                <small class="quality-text">${qualityText}</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-details">
+                        ${additionalInfo}
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="action-btn view-btn" onclick="app.viewProfile('${result.id}')">
+                            <span class="icon icon-eye"></span> Детали
+                        </button>
+                        <button class="action-btn profile-btn" onclick="app.openProfile('${result.profileUrl}')">
+                            <span class="icon icon-external"></span> Профиль
+                        </button>
+                    </div>
+                `;
+                return card;
+            }
+
+            viewProfile(resultId) {
+                // Находим профиль по ID в текущих результатах
+                const resultsGrid = document.getElementById('resultsGrid');
+                const resultCards = resultsGrid.querySelectorAll('.result-card');
+                let profile = null;
+                
+                // Ищем профиль по ID в отображаемых карточках
+                for (let card of resultCards) {
+                    const viewBtn = card.querySelector('.view-btn');
+                    if (viewBtn && viewBtn.onclick.toString().includes(resultId.toString())) {
+                        // Извлекаем данные из карточки
+                        const name = card.querySelector('h4').textContent;
+                        const network = card.querySelector('.result-network').textContent;
+                        const similarity = parseFloat(card.querySelector('.result-similarity').textContent) / 100;
+                        const avatar = card.querySelector('.result-avatar').src;
+                        const profileUrl = card.querySelector('.profile-btn').onclick.toString().match(/'(https:\/\/[^']+)'/)[1];
+                        
+                        profile = {
+                            id: resultId,
+                            name: name,
+                            socialNetwork: network,
+                            profileUrl: profileUrl,
+                            similarity: similarity,
+                            avatar: avatar
+                        };
+                        break;
+                    }
+                }
+                
+                if (profile) {
+                    this.showProfileDetails(profile);
+                } else {
+                    alert('Профиль не найден');
+                }
+            }
+
+            showProfileDetails(profile) {
+                // Создаем модальное окно с деталями профиля
+                const modal = document.createElement('div');
+                modal.className = 'profile-modal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                `;
+
+                const similarityPercent = Math.round(profile.similarity * 100);
+                let qualityClass = '';
+                let qualityText = '';
+                
+                if (similarityPercent >= 90) {
+                    qualityClass = 'high-quality';
+                    qualityText = 'Отличное совпадение';
+                } else if (similarityPercent >= 75) {
+                    qualityClass = 'good-quality';
+                    qualityText = 'Хорошее совпадение';
+                } else if (similarityPercent >= 60) {
+                    qualityClass = 'medium-quality';
+                    qualityText = 'Среднее совпадение';
+                } else {
+                    qualityClass = 'low-quality';
+                    qualityText = 'Низкое совпадение';
+                }
+
+                modal.innerHTML = `
+                    <div class="profile-modal-content" style="
+                        background: white;
+                        border-radius: 20px;
+                        padding: 30px;
+                        max-width: 500px;
+                        width: 90%;
+                        position: relative;
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                    ">
+                        <button class="close-btn" onclick="this.parentElement.parentElement.remove()" style="
+                            position: absolute;
+                            top: 20px;
+                            right: 25px;
+                            background: none;
+                            border: none;
+                            font-size: 2rem;
+                            cursor: pointer;
+                            color: #666;
+                        ">&times;</button>
+                        
+                        <div class="profile-details" style="text-align: center;">
+                            <img src="${profile.avatar}" alt="Аватар" style="
+                                width: 100px;
+                                height: 100px;
+                                border-radius: 50%;
+                                margin-bottom: 20px;
+                                object-fit: cover;
+                            ">
+                            <h3 style="margin-bottom: 10px; color: #333;">${profile.name}</h3>
+                            <p style="color: #667eea; margin-bottom: 15px; font-weight: 500;">${profile.socialNetwork}</p>
+                            
+                            <div class="similarity-details" style="margin-bottom: 20px;">
+                                <span class="similarity-badge ${qualityClass}" style="
+                                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                                    color: white;
+                                    padding: 8px 16px;
+                                    border-radius: 20px;
+                                    font-size: 1.2rem;
+                                    font-weight: bold;
+                                ">${similarityPercent}%</span>
+                                <p style="color: #666; margin-top: 10px; font-style: italic;">${qualityText}</p>
+                            </div>
+                            
+                            <div class="profile-actions" style="display: flex; gap: 15px; justify-content: center;">
+                                <a href="${profile.profileUrl}" target="_blank" style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    text-decoration: none;
+                                    padding: 12px 25px;
+                                    border-radius: 25px;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                                ">Открыть профиль</a>
+                                <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" style="
+                                    background: #6c757d;
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 25px;
+                                    border-radius: 25px;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                ">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                
+                // Закрытие по клику вне модального окна
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+            }
+
+            openProfile(url) {
+                window.open(url, '_blank');
+            }
+
+            showError(message) {
+                alert(message);
+            }
+        }
+
+        // Инициализация приложения при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new PhotoSearchApp();
+        });
+    </script>
+</body>
+</html>

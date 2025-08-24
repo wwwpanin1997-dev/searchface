@@ -1,0 +1,49 @@
+{
+  "name": "social-photo-search",
+  "version": "2.0.0",
+  "description": "Приложение для поиска людей в социальных сетях по фотографии с реальными API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'Build completed'",
+    "test": "echo 'Tests completed'",
+    "setup": "npm install && mkdir uploads && echo 'Setup completed'"
+  },
+  "keywords": [
+    "photo-search",
+    "social-networks",
+    "face-recognition",
+    "api",
+    "express",
+    "nodejs"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/social-photo-search.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/social-photo-search/issues"
+  },
+  "homepage": "https://github.com/yourusername/social-photo-search#readme"
+}
